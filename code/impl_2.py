@@ -32,7 +32,8 @@ class MaskedMultiHeadAttention(nn.Module):
         pre_normalization_weights = q @ k.transpose(2, 3) / np.sqrt(attention_dim)
 
         # i文字目について、i文字目以降の情報を利用しないように-infで埋めておく。
-        mask = torch.tril(torch.ones((1, 1, input_length, input_length)))
+        mask = torch.tril(torch.ones((1, 1, input_length, input_length))).to(pre_normalization_weights.device)
+        mask = mask.to('cuda' if mask.is_cuda else 'cpu')
         masked_weights = pre_normalization_weights.masked_fill(mask == 0, float('-inf'))
 
         # softmaxをかける。-infで埋めたところは0になる。
@@ -95,20 +96,28 @@ def run():
     arg_parser = ArgumentParser()
     arg_parser.add_argument('--data-path', type=str)
     arg_parser.add_argument('--model-output-path', type=str)
+    arg_parser.add_argument('--batch-size', type=int, default=32)
+    arg_parser.add_argument('--hidden-dim', type=int, default=64)
+    arg_parser.add_argument('--num-heads', type=int, default=4)
+    arg_parser.add_argument('--num-transformer-blocks', type=int, default=6)
+    arg_parser.add_argument('--input-length', type=int, default=128)
+    arg_parser.add_argument('--learning-rate', type=float, default=3e-4)
+    arg_parser.add_argument('--device', type=str, default='cpu')
     args = arg_parser.parse_args()
+    print(args)
 
     plain_sentences = PlainSentences.load(args.data_path)
     token_manager = TokenManager.create(plain_sentences)
     plain_gpt = PlainGpt(
-        hidden_dim=32, vocab_size=token_manager.get_vocab_size(),
-        num_heads=4, num_transformer_blocks=6,
+        hidden_dim=args.hidden_dim, vocab_size=token_manager.get_vocab_size(),
+        num_heads=args.num_heads, num_transformer_blocks=args.num_transformer_blocks,
     )
     run_base_training(
-        input_length=128, plain_sentences=plain_sentences, token_manager=token_manager,
-        batch_size=64, model_output_path=args.model_output_path, device='cpu', plain_gpt=plain_gpt,
+        input_length=args.input_length, plain_sentences=plain_sentences, token_manager=token_manager,
+        batch_size=args.batch_size, model_output_path=args.model_output_path, device=args.device, plain_gpt=plain_gpt,
+        learning_rate=args.learning_rate,
     )
 
 
 if __name__ == '__main__':
-    # python -m code.impl_2 --data-path data/wiki-sentences.txt --model-output-path gen/base_model
     run()

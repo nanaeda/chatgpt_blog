@@ -1,0 +1,6 @@
+Namespace(data_path='data/wiki-sentences.txt')
+-------- TokenManager --------
+vocab size: 8767
+[begin]こんにちは
+-------- end --------
+

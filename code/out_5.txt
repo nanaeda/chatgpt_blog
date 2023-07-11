@@ -1,0 +1,160 @@
+Namespace(data_path='data/wiki-sentences.txt', vocabruary_size=16384, merge_rule_output_path='data/bpe.txt')
+distinct num words: 420647
+total num words: 137485758
+word counts: [('テネシー', 1925), ('大学', 111001), ('、', 6344120), ('デューク', 496), ('フロリダ', 3236)]
+distinct num letters: 8766
+rule size: 0
+new word: する, 1058357
+rule size: 100
+new word: 以下, 72111
+rule size: 200
+new word: 記録, 45774
+rule size: 300
+new word: 大きな, 33749
+rule size: 400
+new word: 議会, 26724
+rule size: 500
+new word: 江戸, 22265
+rule size: 600
+new word: 出演, 19069
+rule size: 700
+new word: カリ, 16887
+rule size: 800
+new word: 美術, 15075
+rule size: 900
+new word: 空港, 13752
+rule size: 1000
+new word: 向かっ, 12561
+rule size: 1100
+new word: トラン, 11475
+rule size: 1200
+new word: コード, 10543
+rule size: 1300
+new word: ゆる, 9838
+rule size: 1400
+new word: 限り, 9201
+rule size: 1500
+new word: グレ, 8694
+rule size: 1600
+new word: 競走, 8203
+rule size: 1700
+new word: 今日, 7801
+rule size: 1800
+new word: 様式, 7407
+rule size: 1900
+new word: 65, 7056
+rule size: 2000
+new word: 複雑, 6746
+rule size: 2100
+new word: 長期, 6460
+rule size: 2200
+new word: 市長, 6231
+rule size: 2300
+new word: ツァ, 5951
+rule size: 2400
+new word: 在籍, 5661
+rule size: 2500
+new word: 翻訳, 5451
+rule size: 2600
+new word: 学会, 5219
+rule size: 2700
+new word: 解説, 5006
+rule size: 2800
+new word: 出席, 4811
+rule size: 2900
+new word: 避難, 4649
+rule size: 3000
+new word: 乾燥, 4464
+rule size: 3100
+new word: ーンズ, 4305
+rule size: 3200
+new word: プール, 4123
+rule size: 3300
+new word: 先頭, 3984
+rule size: 3400
+new word: 両国, 3853
+rule size: 3500
+new word: ティック, 3737
+rule size: 3600
+new word: おか, 3631
+rule size: 3700
+new word: はっきり, 3527
+rule size: 3800
+new word: 込め, 3408
+rule size: 3900
+new word: 富山, 3296
+rule size: 4000
+new word: トイレ, 3192
+rule size: 4100
+new word: 回数, 3091
+rule size: 4200
+new word: 助手, 3014
+rule size: 4300
+new word: ロウ, 2937
+rule size: 4400
+new word: 妊娠, 2858
+rule size: 4500
+new word: レジ, 2788
+rule size: 4600
+new word: 水中, 2724
+rule size: 4700
+new word: ラド, 2657
+rule size: 4800
+new word: 近鉄, 2591
+rule size: 4900
+new word: 水道, 2519
+rule size: 5000
+new word: 1916, 2450
+rule size: 5100
+new word: 留め, 2393
+rule size: 5200
+new word: アプ, 2328
+rule size: 5300
+new word: チリ, 2272
+rule size: 5400
+new word: チョウ, 2224
+rule size: 5500
+new word: 役者, 2166
+rule size: 5600
+new word: 革新, 2117
+rule size: 5700
+new word: 精度, 2073
+rule size: 5800
+new word: ジェン, 2026
+rule size: 5900
+new word: 但し, 1978
+rule size: 6000
+new word: 発注, 1931
+rule size: 6100
+new word: 改編, 1888
+rule size: 6200
+new word: 一揆, 1847
+rule size: 6300
+new word: 家老, 1810
+rule size: 6400
+new word: 週末, 1767
+rule size: 6500
+new word: 代議, 1732
+rule size: 6600
+new word: クモ, 1695
+rule size: 6700
+new word: バイク, 1659
+rule size: 6800
+new word: 分断, 1624
+rule size: 6900
+new word: 協奏, 1592
+rule size: 7000
+new word: 発する, 1558
+rule size: 7100
+new word: 毒性, 1529
+rule size: 7200
+new word: ニオン, 1499
+rule size: 7300
+new word: 二郎, 1472
+rule size: 7400
+new word: シスト, 1453
+rule size: 7500
+new word: ラバ, 1426
+rule size: 7600
+new word: ブエ, 1399
+Saving to data/bpe.txt

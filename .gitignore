@@ -1,4 +1,6 @@
 data/
 gen/
+code/__pycache__
 my_env/
+
 

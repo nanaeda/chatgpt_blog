@@ -1,0 +1,32 @@
+split word: ['t', 'h', 'i', 's']
+split word: ['i', 's']
+split word: ['r', 'e', 'a', 'd', 'a', 'b', 'l', 'e']
+split word: ['r', 'e', 'a', 'd']
+split word: ['a', 'n', 'd']
+split word: ['c', 'l', 'i', 'c', 'k']
+split word: ['t', 'h', 'i', 's']
+split word: ['c', 'l', 'i', 'c', 'k', 'a', 'b', 'l', 'e']
+split word: ['b', 'u', 't', 't', 'o', 'n']
+new word: is, 3
+new word: th, 2
+new word: this, 2
+new word: re, 2
+new word: rea, 2
+new word: read, 2
+new word: ab, 2
+new word: abl, 2
+new word: able, 2
+new word: cl, 2
+new word: cli, 2
+new word: clic, 2
+new word: click, 2
+merge rules: [('i', 's'), ('t', 'h'), ('th', 'is'), ('r', 'e'), ('re', 'a'), ('rea', 'd'), ('a', 'b'), ('ab', 'l'), ('abl', 'e'), ('c', 'l'), ('cl', 'i'), ('cli', 'c'), ('clic', 'k')]
+split word: ['this']
+split word: ['is']
+split word: ['read', 'able']
+split word: ['read']
+split word: ['a', 'n', 'd']
+split word: ['click']
+split word: ['this']
+split word: ['click', 'able']
+split word: ['b', 'u', 't', 't', 'o', 'n']

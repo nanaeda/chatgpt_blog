@@ -54,10 +54,11 @@ class PlainGpt(nn.Module):
         self._transformer = nn.Sequential(*blocks)
         self._norm = nn.LayerNorm(hidden_dim)
 
-        if use_positional_embedding:
-            self._positional_stuff = PositionalEmbedding(hidden_dim, max_input_length)
-        else:
-            self._positional_stuff = PositionalEncoding(hidden_dim, max_input_length)
+        self._positional_stuff = (
+            PositionalEmbedding(hidden_dim, max_input_length)
+            if use_positional_embedding else
+            PositionalEncoding(hidden_dim, max_input_length)
+        )
 
     def forward(self, x):
         x = self._word_embedding(x)
@@ -72,22 +73,30 @@ def run():
     arg_parser = ArgumentParser()
     arg_parser.add_argument('--data-path', type=str)
     arg_parser.add_argument('--model-output-path', type=str)
+    arg_parser.add_argument('--batch-size', type=int, default=32)
+    arg_parser.add_argument('--hidden-dim', type=int, default=64)
+    arg_parser.add_argument('--num-heads', type=int, default=4)
+    arg_parser.add_argument('--num-transformer-blocks', type=int, default=6)
+    arg_parser.add_argument('--input-length', type=int, default=128)
+    arg_parser.add_argument('--learning-rate', type=float, default=3e-4)
+    arg_parser.add_argument('--device', type=str, default='cpu')
     arg_parser.add_argument('--use-positional-embedding', action='store_true', default=False)
     args = arg_parser.parse_args()
+    print(args)
 
     plain_sentences = PlainSentences.load(args.data_path)
     token_manager = TokenManager.create(plain_sentences)
     plain_gpt = PlainGpt(
-        hidden_dim=32, vocab_size=token_manager.get_vocab_size(),
-        num_heads=4, max_input_length=128, num_transformer_blocks=6,
-        use_positional_embedding=args.use_positional_embedding,
+        hidden_dim=args.hidden_dim, vocab_size=token_manager.get_vocab_size(),
+        num_heads=args.num_heads, num_transformer_blocks=args.num_transformer_blocks,
+        use_positional_embedding=args.use_positional_embedding, max_input_length=args.input_length,
     )
     run_base_training(
-        input_length=128, plain_sentences=plain_sentences, token_manager=token_manager,
-        batch_size=64, model_output_path=args.model_output_path, device='cpu', plain_gpt=plain_gpt,
+        input_length=args.input_length, plain_sentences=plain_sentences, token_manager=token_manager,
+        batch_size=args.batch_size, model_output_path=args.model_output_path, device=args.device, plain_gpt=plain_gpt,
+        learning_rate=args.learning_rate,
     )
 
 
 if __name__ == '__main__':
-    # python -m code.impl_3 --data-path data/wiki-sentences.txt --model-output-path gen/base_model --use-position-embedding
     run()

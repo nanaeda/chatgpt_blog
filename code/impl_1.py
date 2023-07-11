@@ -29,7 +29,7 @@ class PlainGpt(nn.Module):
 def generate_sentence(
         model: PlainGpt, initial_sentence: List[int],
         max_length: int, token_manager: TokenManager,
-        terminate_on_start_token: bool, device: str,
+        terminate_on_begin_token: bool, device: str,
 ) -> List[int]:
     """
     この関数では、
@@ -49,8 +49,8 @@ def generate_sentence(
         out = out.to('cpu')  # GPUを使っている場合に備えてデータをCPUに持ってくる。
         res.append(random.choice(token_manager.get_vocab_size(), p=out.detach().numpy()))
 
-        # startトークンは文章を区切る時に使われる。複数文章生成する必要がない時はstartトークンが来たら打ち切る。
-        if terminate_on_start_token and res[-1] == token_manager.get_start_token_index():
+        # beginトークンは文章を区切る時に使われる。複数文章生成する必要がない時はbeginトークンが来たら打ち切る。
+        if terminate_on_begin_token and res[-1] == token_manager.get_begin_token_index():
             res = res[:-1]
             break
     model.train()
@@ -59,20 +59,15 @@ def generate_sentence(
 
 
 def run_base_training(
-        input_length: int, plain_sentences: PlainSentences, plain_gpt: nn.Module,
-        batch_size: int, model_output_path: str, token_manager: TokenManager, device: str='cpu',
+        input_length: int, plain_sentences: PlainSentences, plain_gpt: nn.Module, learning_rate: float,
+        batch_size: int, model_output_path: str, token_manager: TokenManager, device: str,
 ):
-    print("tain base gpt")
-
-    print("input length: %d" % (input_length,))
-    print("batch size: %d" % (batch_size,))
-
     time_begin = time.time()
     
     plain_gpt.to(device)
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(plain_gpt.parameters(), lr=3e-4)
+    optimizer = torch.optim.Adam(plain_gpt.parameters(), lr=learning_rate)
 
     losses = []
     for step in range(1000000000):
@@ -80,12 +75,12 @@ def run_base_training(
         nn_input = []
         for _ in range(batch_size):
             """
-            入力を生成する。文章を1つだけセットするのではなく、[start]トークンで区切って複数の文章を並べてセットする。
-            例: [start]吾輩は猫である。[strat]恥の多い生涯を送って来ました。[start]トンネルを抜ける...
+            入力を生成する。文章を1つだけセットするのではなく、[begin]トークンで区切って複数の文章を並べてセットする。
+            例: [begin]吾輩は猫である。[strat]恥の多い生涯を送って来ました。[begin]トンネルを抜ける...
             """
             row = []
             while len(row) < input_length:
-                row.append(token_manager.get_start_token_index())
+                row.append(token_manager.get_begin_token_index())
                 row.extend(token_manager.to_indexes(plain_sentences.get_random_sentence()))
             nn_input.append(row[: input_length])
         nn_input = torch.tensor(np.array(nn_input)).to(device)
@@ -93,12 +88,12 @@ def run_base_training(
         nn_output = plain_gpt(nn_input)
 
         """
-        この時点では{nn_input}と{nn_output}は大体以下のようになっている。
+        {nn_output}には各ワードの予測確率のsoftmax適応前の値が入っている。
+        そこで、{nn_output}から最も確率の高いワードを取り出すと、{nn_input}と{nn_output}は大体以下のようになっている。
         
-        nn_input: [start]吾輩は猫である。[strat]恥の多い生涯を
+        nn_input: [begin]吾輩は猫である。[strat]恥の多い生涯を
         nn_output: 吾輩は猫である。[strat]恥の多い生涯を送
         
-        実際には{nn_output}は各ワードの予測確率のsoftmax適応前の値が入っているが、そこに目を瞑れば上記のようになっている。
         なので、モデルの予測が正確であれば、{nn_input}の最初1文字目を除いた文字列と、{nn_output}の最後1文字目を除いた文字列が一致する。
         """
 
@@ -115,20 +110,17 @@ def run_base_training(
 
         losses.append(loss.to('cpu').detach().numpy())
 
-        # 10回に1回、ロスなどの情報を書き出す。
-        if step % 10 == 0:
+        # ロスなどの情報を書き出し、モデルを保存する。
+        if step % (10 if step < 200 else 100) == 0:
             generated_sentence = token_manager.to_str(generate_sentence(
-                model=plain_gpt, initial_sentence=[token_manager.get_start_token_index()], max_length=64, 
-                token_manager=token_manager, terminate_on_start_token=False, device=device,
+                model=plain_gpt, initial_sentence=[token_manager.get_begin_token_index()], max_length=64, 
+                token_manager=token_manager, terminate_on_begin_token=False, device=device,
             ))
             print("step %4d (%4d sec): loss=%0.6f, gen=%s" % (
                 step, time.time() - time_begin, 
                 np.mean(losses[-50:]), generated_sentence,
             ))
-      
-        # 100回に1回、モデルを保存する。
-        if step % 100 == 0:
-            print("save models")
+
             torch.save(plain_gpt, model_output_path)
 
 
@@ -136,17 +128,23 @@ def run():
     arg_parser = ArgumentParser()
     arg_parser.add_argument('--data-path', type=str)
     arg_parser.add_argument('--model-output-path', type=str)
+    arg_parser.add_argument('--batch-size', type=int, default=32)
+    arg_parser.add_argument('--hidden-dim', type=int, default=64)
+    arg_parser.add_argument('--input-length', type=int, default=128)
+    arg_parser.add_argument('--learning-rate', type=float, default=3e-4)
+    arg_parser.add_argument('--device', type=str, default='cpu')
     args = arg_parser.parse_args()
+    print(args)
 
     plain_sentences = PlainSentences.load(args.data_path)
     token_manager = TokenManager.create(plain_sentences)
-    plain_gpt = PlainGpt(hidden_dim=64, vocab_size=token_manager.get_vocab_size())
+    plain_gpt = PlainGpt(hidden_dim=args.hidden_dim, vocab_size=token_manager.get_vocab_size())
     run_base_training(
-        input_length=128, plain_sentences=plain_sentences, token_manager=token_manager,
-        batch_size=64, model_output_path=args.model_output_path, device='cpu', plain_gpt=plain_gpt,
+        input_length=args.input_length, plain_sentences=plain_sentences, token_manager=token_manager,
+        batch_size=args.batch_size, model_output_path=args.model_output_path, device=args.device, plain_gpt=plain_gpt,
+        learning_rate=args.learning_rate,
     )
 
 
 if __name__ == '__main__':
-    # python -m code.impl_1 --data-path data/wiki-sentences.txt --model-output-path gen/base_model
     run()
