@@ -111,6 +111,7 @@ def run_base_training(
         losses.append(loss.to('cpu').detach().numpy())
 
         # ロスなどの情報を書き出し、モデルを保存する。
+        # 実装例の複雑さを低くするため、本筋と関係のない実装を省く方針でいくので、交差検証などは省きます。
         if step % (10 if step < 200 else 100) == 0:
             generated_sentence = token_manager.to_str(generate_sentence(
                 model=plain_gpt, initial_sentence=[token_manager.get_begin_token_index()], max_length=64, 
